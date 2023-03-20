@@ -136,3 +136,36 @@ Now we can install some libraries to drive the AD9361
 
   Refer to [pyadi-iio](https://analogdevicesinc.github.io/pyadi-iio) to interact with AD9361 through python
 
+## 5. Troubleshoot
+
+* No device `eth0`
+
+  If the built image has no device `eth0`, modify /build/tmp/work_shared/plnx-zynq7/kernel-source/arch/arm/boot/dts/zynq-zed.dtsi. Change phy@0 at line 23 to ethernet-phy@0
+
+* `depmod ERROR: could not open directory /lib/modules/4.14.0-xilinx-v2018.3: No such file or directory`
+
+  * Solution 1:
+
+      Change LINUX_VERSION in Makefile from 4.14-xilinx-v2018.3 to that (4.14-xilinx-) in /lib/modules.
+
+  * Solution 2:
+
+      ```bash
+      petalinux-config -c kernel
+      ```
+
+      Go to General setup -> Local version, change `-xilinx-` to `-xilinx-v2018.3` 
+
+* Network Error
+
+  - Check .gitconfig for proxy settings. Makesure all proxy settings are right
+
+      ```bash
+      git config -l | grep proxy
+      ```
+
+  - Sometimes, git:// will not work, but https:// will work, so type this in shell:
+
+      ```bash
+      git config --global url."https://".insteadOf git://
+      ```
