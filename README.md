@@ -28,7 +28,7 @@ Refer to [ADI's hdl repository](https://github.com/analogdevicesinc/hdl) to buil
   cd meta-adi && git checkout 2019_R1 && cd ..
   ```
 
-* Config project using the hardware descriptions (.hdf or .xsa files) exported from vivado
+* Config project using the hardware descriptions (.hdf or .xsa files) exported from Vivado
 
   ```bash
   cd zedboard-adi
@@ -46,6 +46,8 @@ Refer to [ADI's hdl repository](https://github.com/analogdevicesinc/hdl) to buil
   <img src="img/layer_setting.png"  />
 
   Save and exit.
+  
+  MAKE SURE `meta-adi-core` is above `meta-adi-xilinx`. That is to say, make sure the `meta-adi-core` is LAYER_0.
 
 * Export petalinux bsp
 
@@ -82,7 +84,7 @@ Refer to [ADI's hdl repository](https://github.com/analogdevicesinc/hdl) to buil
   STAGE4_PACKAGES_ZedBoard-ADI := ethernet
   ```
   
-  make sure the name of bsp and bitstream is correct.
+  Make sure the name of bsp and bitstream is correct.
 
 * Prepare prebuilt image
 
@@ -136,11 +138,11 @@ Now we can install some libraries to drive the AD9361
 
   Refer to [pyadi-iio](https://analogdevicesinc.github.io/pyadi-iio) to interact with AD9361 through python
 
-## 5. Troubleshoot
+## 5. Troubleshooting
 
 * No device `eth0`
 
-  If the built image has no device `eth0`, modify /build/tmp/work_shared/plnx-zynq7/kernel-source/arch/arm/boot/dts/zynq-zed.dtsi. Change phy@0 at line 23 to ethernet-phy@0
+  If the built image has no device `eth0`, modify `/build/tmp/work_shared/plnx-zynq7/kernel-source/arch/arm/boot/dts/zynq-zed.dtsi`. Change phy@0 at line 23 to ethernet-phy@0
 
 * `depmod ERROR: could not open directory /lib/modules/4.14.0-xilinx-v2018.3: No such file or directory`
 
@@ -148,13 +150,20 @@ Now we can install some libraries to drive the AD9361
 
       Change LINUX_VERSION in Makefile from 4.14-xilinx-v2018.3 to that (4.14-xilinx-) in /lib/modules.
 
-  * Solution 2:
+  * Solution 2 (not tested):
 
       ```bash
       petalinux-config -c kernel
       ```
 
       Go to General setup -> Local version, change `-xilinx-` to `-xilinx-v2018.3` 
+      
+  * Solution 3 (not tested):
+      
+      Adding the following line at PYNQ/sdbuild/Makefile line 127:
+      ```
+      echo 'CONFIG_LOCALVERSION="-xilinx-v2018.3"' >> $$(PL_CONFIG_$1)
+      ```
 
 * Network Error
 
@@ -169,3 +178,23 @@ Now we can install some libraries to drive the AD9361
       ```bash
       git config --global url."https://".insteadOf git://
       ```
+
+  - Offline build will work around any network issue, so it is highly recommended. 
+  
+    Enable Offline Build by adding some configurations at PYNQ/sdbuild/Makefile line 127
+      
+      ```bash
+      echo 'CONFIG_PRE_MIRROR_URL="file:///opt/Xilinx/Downloads/sstate-rel-v2018.3/downloads"' >> $$(PL_CONFIG_$1)
+      echo 'CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="/opt/Xilinx/Downloads/sstate-rel-v2018.3/arm"' >> $$(PL_CONFIG_$1)
+      echo 'CONFIG_YOCTO_NETWORK_SSTATE_FEEDS=y' >> $$(PL_CONFIG_$1)
+      echo 'CONFIG_YOCTO_NETWORK_SSTATE_FEEDS_URL="file:///opt/Xilinx/Downloads/sstate-rel-v2018.3/arm"' >> $$(PL_CONFIG_$1)
+      ```
+      
+      And then download `sstate-rel-v2018.3` from [Xilinx official petalinux download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-design-tools/archive.html) to the corresponding location.
+      
+      Also, download the [ADI's linux repository](https://github.com/analogdevicesinc/linux) to any location (<path-to-linux-repo>/linux), and then edit `meta-adi/meta-adi-xilinx/recipes-kernel/linux/linux-adi.inc` line 8 to 
+      ```bash
+      SRC_URI = "git://<path-to-linux-repo>/linux;protocol=file;branch=2019_R1"
+      ```
+      
+      In this way, you can also modify the local `<path-to-linux-repo>/arch/arm/boot/dts/zynq-zed.dtsi` to resolve the device-tree bug mentioned above.
