@@ -142,13 +142,13 @@ Now we can install some libraries to drive the AD9361
 
 * No device `eth0`
 
-  If the built image has no device `eth0`, modify `/build/tmp/work_shared/plnx-zynq7/kernel-source/arch/arm/boot/dts/zynq-zed.dtsi`. Change phy@0 at line 23 to ethernet-phy@0
+  If the built image has no device `eth0`, modify `/build/tmp/work_shared/plnx-zynq7/kernel-source/arch/arm/boot/dts/zynq-zed.dtsi`. Change `phy@0` at line 23 to `ethernet-phy@0`, and rerum `make BOARDS=... PREBUILT=...`.
 
 * `depmod ERROR: could not open directory /lib/modules/4.14.0-xilinx-v2018.3: No such file or directory`
 
   * Solution 1:
 
-      Change LINUX_VERSION in Makefile from 4.14-xilinx-v2018.3 to that (4.14-xilinx-) in /lib/modules.
+      Change LINUX_VERSION in Makefile from `4.14-xilinx-v2018.3` to that in /lib/modules, aka, `4.14-xilinx-`.
 
   * Solution 2 (not tested):
 
@@ -156,7 +156,7 @@ Now we can install some libraries to drive the AD9361
       petalinux-config -c kernel
       ```
 
-      Go to General setup -> Local version, change `-xilinx-` to `-xilinx-v2018.3` 
+      Go to General setup -> Local version, change `-xilinx-` to `-xilinx-v2018.3`.
       
   * Solution 3 (not tested):
       
@@ -167,7 +167,7 @@ Now we can install some libraries to drive the AD9361
 
 * Network Error
 
-  - Check .gitconfig for proxy settings. Makesure all proxy settings are right
+  - Check .gitconfig for proxy settings. Makesure all proxy settings are right:
 
       ```bash
       git config -l | grep proxy
@@ -181,7 +181,7 @@ Now we can install some libraries to drive the AD9361
 
   - Offline build will work around any network issue, so it is highly recommended. 
   
-    Enable Offline Build by adding some configurations at PYNQ/sdbuild/Makefile line 127
+    Enable Offline Build by adding some configurations at PYNQ/sdbuild/Makefile line 127:
       
       ```bash
       echo 'CONFIG_PRE_MIRROR_URL="file:///opt/Xilinx/Downloads/sstate-rel-v2018.3/downloads"' >> $$(PL_CONFIG_$1)
@@ -192,9 +192,23 @@ Now we can install some libraries to drive the AD9361
       
       And then download `sstate-rel-v2018.3` from [Xilinx official petalinux download page](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/embedded-design-tools/archive.html) to the corresponding location.
       
-      Also, download the [ADI's linux repository](https://github.com/analogdevicesinc/linux) to any location (<path-to-linux-repo>/linux), and then edit `meta-adi/meta-adi-xilinx/recipes-kernel/linux/linux-adi.inc` line 8 to 
+      Also, download the [ADI's linux repository](https://github.com/analogdevicesinc/linux) to any location (<path-to-linux-repo>/linux), and then edit `meta-adi/meta-adi-xilinx/recipes-kernel/linux/linux-adi.inc` line 8 to :
       ```bash
       SRC_URI = "git://<path-to-linux-repo>/linux;protocol=file;branch=2019_R1"
       ```
       
       In this way, you can also modify the local `<path-to-linux-repo>/arch/arm/boot/dts/zynq-zed.dtsi` to resolve the device-tree bug mentioned above.
+
+* check_env failed
+ 
+    * qemu check version failed
+ 
+      Type the following command to check whether qemu-arm-static refers to:
+      ```bash
+      which qemu-arm-static
+      ```
+      Make sure `qemu-arm-static` refers to the right version (the one in /opt, not in /usr/bin/).
+ 
+    * sdx not found
+ 
+      sdx is not really needed by the make process, so just disable it by removing the line in Makefile that has `which sdx`.
