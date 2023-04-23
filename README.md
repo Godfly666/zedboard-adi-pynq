@@ -47,7 +47,7 @@ Refer to [ADI's hdl repository](https://github.com/analogdevicesinc/hdl) to buil
 
   Save and exit.
   
-  MAKE SURE `meta-adi-core` is above `meta-adi-xilinx`. That is to say, make sure the `meta-adi-core` is LAYER_0.
+  MAKE SURE `meta-adi-core` is above `meta-adi-xilinx`. In other words, make sure `meta-adi-core` is the LAYER_0.
 
 * Export petalinux bsp
 
