@@ -7,7 +7,7 @@ Instructions on how to build PYNQ on zedboard with ADI linux kernel.
   * PetaLinux 2018.3
   * Vivado 2018.3
 * Testing boards
-  * V3 FMC9361_V1.0
+  * AD-FMCOMMS2-EBZ
 
 ## 1. Build HDL
 
